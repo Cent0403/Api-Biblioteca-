@@ -1,0 +1,80 @@
+CREATE DATABASE biblioteca
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE autores (
+    id_autor UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    nombre VARCHAR(150) NOT NULL,
+    nacionalidad VARCHAR(100),
+    biografia TEXT,
+    correo VARCHAR(150) NOT NULL UNIQUE
+);
+
+CREATE TABLE categorias (
+    id_categoria UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    nombre_categoria VARCHAR(100) NOT NULL,
+    clasificacion VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE libros (
+    id_libro UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    titulo VARCHAR(255) NOT NULL CHECK (char_length(titulo) >= 10),
+    anio_publicacion INT NOT NULL CHECK (anio_publicacion > 1900),
+    autor_id UUID NOT NULL,
+    categoria_id UUID NOT NULL,
+    resumen TEXT,
+    CONSTRAINT fk_autor FOREIGN KEY (autor_id) REFERENCES autores (id_autor) ON DELETE CASCADE,
+    CONSTRAINT fk_categoria FOREIGN KEY (categoria_id) REFERENCES categorias (id_categoria) ON DELETE CASCADE
+); 
+
+
+-- Tabla autores
+INSERT INTO autores (nombre, nacionalidad, biografia, correo)
+VALUES ('Gabriel García Márquez', 'Colombiana', 'Autor de Cien Años de Soledad', 'gabo@realismo.com');
+
+INSERT INTO autores (nombre, nacionalidad, biografia, correo)
+VALUES ('Isabel Allende', 'Chilena', 'Autora de La Casa de los Espíritus', 'isabel@literatura.com');
+
+INSERT INTO autores (nombre, nacionalidad, biografia, correo)
+VALUES ('Jorge Luis Borges', 'Argentina', 'Maestro del cuento y ensayo', 'borges@ficcion.com');
+
+INSERT INTO autores (nombre, nacionalidad, biografia, correo)
+VALUES ('Mario Vargas Llosa', 'Peruana', 'Premio Nobel de Literatura 2010', 'mario@novelas.com');
+-- Tabla categorias
+INSERT INTO categorias (nombre_categoria, clasificacion)
+VALUES ('Novela', 'Ficción Literaria');
+
+INSERT INTO categorias (nombre_categoria, clasificacion)
+VALUES ('Poesía', 'Literatura');
+
+INSERT INTO categorias (nombre_categoria, clasificacion)
+VALUES ('Ensayo', 'No Ficción');
+
+INSERT INTO categorias (nombre_categoria, clasificacion)
+VALUES ('Historia', 'Académico');
+-- Tabla libros
+INSERT INTO libros (titulo, anio_publicacion, autor_id, categoria_id, resumen)
+VALUES (
+  'Cien Años de Soledad',
+  1967,
+  (SELECT id_autor FROM autores WHERE nombre = 'Gabriel García Márquez'),
+  (SELECT id_categoria FROM categorias WHERE nombre_categoria = 'Novela'),
+  'Una obra maestra del realismo mágico'
+);
+
+INSERT INTO libros (titulo, anio_publicacion, autor_id, categoria_id, resumen)
+VALUES (
+  'La Casa de los Espíritus',
+  1982,
+  (SELECT id_autor FROM autores WHERE nombre = 'Isabel Allende'),
+  (SELECT id_categoria FROM categorias WHERE nombre_categoria = 'Novela'),
+  'Novela emblemática de la literatura latinoamericana'
+);
+
+INSERT INTO libros (titulo, anio_publicacion, autor_id, categoria_id, resumen)
+VALUES (
+  'La Ciudad y los Perros',
+  1963,
+  (SELECT id_autor FROM autores WHERE nombre = 'Mario Vargas Llosa'),
+  (SELECT id_categoria FROM categorias WHERE nombre_categoria = 'Novela'),
+  'Primera novela del autor, ambientada en un colegio militar'
+);
